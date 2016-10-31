@@ -1,5 +1,6 @@
 # backend
 
+$http.post() - either by application/x-www-form-urlencoded or application/json
 Given a controller with a function called update():
 
 	$scope.update = function() {
