@@ -53,109 +53,22 @@ class DbOperation
         return $num_rows>0;
     }
 
-    // TODO:  Remove everything below and use PDO
-    //method to register a new faculty
-    public function createFaculty($name,$username,$pass,$subject){
-        if (!$this->isFacultyExists($username)) {
-            $password = md5($pass);
-            $apikey = $this->generateApiKey();
-            $stmt = $this->con->prepare("INSERT INTO faculties (name, username, password, subject, api_key) values(?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssss", $name, $username, $password, $subject, $apikey);
-            $result = $stmt->execute();
-            $stmt->close();
-            if ($result) {
-                return 0;
-            } else {
-                return 1;
-            }
-        } else {
-            return 2;
-        }
+    public function getAllPatients() {
+
+        $statement = $this->pdo->prepare("SELECT id, name, username FROM allstudents");
+        $statement->execute();
+        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        return $rows;
     }
 
-    //method to let a faculty log in
-    public function facultyLogin($username, $pass){
-        $password = md5($pass);
-        $stmt = $this->con->prepare("SELECT * FROM faculties WHERE username=? and password =?");
-        $stmt->bind_param("ss",$username,$password);
-        $stmt->execute();
-        $stmt->store_result();
-        $num_rows = $stmt->num_rows;
-        $stmt->close();
-        return $num_rows>0;
-    }
+    public function getPatientById($patientId){
+        // $password = md5($pass);
+        $statement = $this->pdo->prepare("SELECT id, name, username FROM allstudents WHERE id=?");
+        $statement->execute(array($patientId));
+        $row = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-    //Method to create a new assignment
-    public function createAssignment($name,$detail,$facultyid,$studentid){
-        $stmt = $this->con->prepare("INSERT INTO assignments (name,details,faculties_id,students_id) VALUES (?,?,?,?)");
-        $stmt->bind_param("ssii",$name,$detail,$facultyid,$studentid);
-        $result = $stmt->execute();
-        $stmt->close();
-        if($result){
-            return true;
-        }
-        return false;
-    }
-
-    //Method to update assignment status
-    public function updateAssignment($id){
-        $stmt = $this->con->prepare("UPDATE assignments SET completed = 1 WHERE id=?");
-        $stmt->bind_param("i",$id);
-        $result = $stmt->execute();
-        $stmt->close();
-        if($result){
-            return true;
-        }
-        return false;
-    }
-
-    //Method to get all the assignments of a particular student
-    public function getAssignments($studentid){
-        $stmt = $this->con->prepare("SELECT * FROM assignments WHERE students_id=?");
-        $stmt->bind_param("i",$studentid);
-        $stmt->execute();
-        $assignments = $stmt->get_result();
-        $stmt->close();
-        return $assignments;
-    }
-
-    //Method to get student details
-    public function getStudent($username){
-        $stmt = $this->con->prepare("SELECT * FROM allstudents WHERE username=?");
-        $stmt->bind_param("s",$username);
-        $stmt->execute();
-        $student = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        return $student;
-    }
-
-    //Method to fetch all students from database
-    public function getAllStudents(){
-        $stmt = $this->con->prepare("SELECT * FROM allstudents");
-        $stmt->execute();
-        $students = $stmt->get_result();
-        $stmt->close();
-        return $students;
-    }
-
-    //Method to get faculy details by username
-    public function getFaculty($username){
-        $stmt = $this->con->prepare("SELECT * FROM faculties WHERE username=?");
-        $stmt->bind_param("s",$username);
-        $stmt->execute();
-        $faculty = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        return $faculty;
-    }
-
-    //Method to get faculty name by id
-    public function getFacultyName($id){
-        $stmt = $this->con->prepare("SELECT name FROM faculties WHERE id=?");
-        $stmt->bind_param("i",$id);
-        $stmt->execute();
-        $faculty = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-        return $faculty['name'];
+        return $row;
     }
 
     //Method to check the student username already exist or not
