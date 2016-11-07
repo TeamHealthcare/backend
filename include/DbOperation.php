@@ -53,9 +53,22 @@ class DbOperation
         return $num_rows>0;
     }
 
+    public function getAllCarriers() {
+        $query = "SELECT InsuranceCarrierId, Carrier FROM insurancecarrier WHERE Active = 1";
+
+        $statement = $this->pdo->prepare($query);
+        $statement->execute();
+        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        return $rows;
+    }
+
     public function getAllPatients() {
 
-        $statement = $this->pdo->prepare("SELECT id, name, username FROM allstudents");
+        $query = "SELECT PatientId, PatientName, PhoneNumber, Address, City, State, ZipCode";
+        $query .= ", InsuranceCarrierId, DateOfBirth, Gender, Physician FROM electronicpatient;";
+
+        $statement = $this->pdo->prepare($query);
         $statement->execute();
         $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -64,13 +77,58 @@ class DbOperation
 
     public function getPatientById($patientId){
         // $password = md5($pass);
-        $statement = $this->pdo->prepare("SELECT id, name, username FROM allstudents WHERE id=?");
+        $query = "SELECT PatientId, PatientName, PhoneNumber, Address, City, State, ZipCode";
+        $query .= ", InsuranceCarrierId, DateOfBirth, Gender, Physician FROM electronicpatient ";
+        $query .= "WHERE PatientId = ?";
+
+        $statement = $this->pdo->prepare($query);
         $statement->execute(array($patientId));
         $row = $statement->fetchAll(PDO::FETCH_ASSOC);
 
         return $row;
     }
 
+    public function addElectronicPatientX($patientName, $phoneNumber, $address, $city, $state, 
+        $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician) {
+
+        $query = "INSERT INTO electronicpatient ";
+        $query .= "(PatientName, PhoneNumber, Address, City, State, ZipCode, InsuranceCarrierId, DateOfBirth, Gender, Physician) VALUES ";
+        $query .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $results = "";
+
+        try {
+            $stmt = $this->con->prepare($query);
+            $stmt->bind_param("ssssssssss", $patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician);
+            $rezuts = $stmt->execute();
+            $stmt->store_result();
+            $num_rows = $stmt->num_rows;
+            $results = "STATUS:  [" . $rezuts . "] = " . $num_rows;
+            $stmt->close();
+        } catch (Exception $e) {
+            $results = "ERROR:  " . $e->errorMessage();
+        }
+
+        return $results;
+    }
+
+    public function addElectronicPatient($patientName, $phoneNumber, $address, $city, $state, 
+        $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician) {
+
+        $query = "INSERT INTO electronicpatient ";
+        $query .= "(PatientName, PhoneNumber, Address, City, State, ZipCode, InsuranceCarrierId, DateOfBirth, Gender, Physician) VALUES ";
+        $query .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+
+        $statement = $this->pdo->prepare($query);
+        // $hashedPassword = md5($password);
+        $dateEntered = date('Y-m-d H:i:s');
+        $affected = $statement->execute(array($patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician));
+        // $affected = $statement->execute(func_get_args());
+        return $affected > 0 ;        
+    }
+
+    // --------------------------------------------------------------------------------------------------
     //Method to check the student username already exist or not
     private function isStudentExists($username) {
         $stmt = $this->con->prepare("SELECT id from allstudents WHERE username = ?");
