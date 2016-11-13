@@ -77,22 +77,31 @@ $app->post('/adduser2', function () use ($app) {
 });
 
 /*
- * URL: http://localhost/Services/v1/allPatients
+ * URL: http://localhost/Services/v1/carriers
+ * Parameters: none
+ * Authorization: Put API Key in Request Header
+ * Method: GET
+ * */
+$app->get('/carriers', function() use ($app){
+
+    $response = initializeResponseObject();
+    $db = new DbOperation();
+    $response['payload'] = $db->getAllCarriers();
+    echoResponse(200, $response);
+});
+
+/*
+ * URL: http://localhost/Services/v1/patients
  * Parameters: none
  * Authorization: Put API Key in Request Header
  * Method: GET
  * */
 $app->get('/patients', function() use ($app){
 
-    $response = array();
-    $response['error'] = false;
-    $response['assignments'] = array();
-
+    $response = initializeResponseObject();
     $db = new DbOperation();
-    $results = $db->getAllPatients();
-
-    $response['assignments'] = $results;
-    echoResponse(200,$response);
+    $response['payload'] = $db->getAllPatients();
+    echoResponse(200, $response);
 });
 
 /* *
@@ -102,17 +111,134 @@ $app->get('/patients', function() use ($app){
  * Method: GET
  * */
 $app->get('/patient/:id', function($patient_id) use ($app){
-    $response = array();
-    $response['error'] = false;
-    $response['assignments'] = array();
-    // echoResponse(200,$response);
 
+    $response = initializeResponseObject();
     $db = new DbOperation();
-    $result = $db->getPatientById($patient_id);
-
-    $response['assignments'] = $result;
-
+    $response['payload'] = $db->getPatientById($patient_id);
     echoResponse(200,$response);
+});
+
+
+/* *
+ * NOTE:  This adds a user to the database via POST whose Content-Type:  application/json.
+ *        This does *NOT* use directly take advantage of the SLIM framework
+ *
+ * URL: http://localhost/Services/v1/adduser
+ * Parameters: employeenumber, jobtitle, password, employeename
+ * Method: POST
+ * */
+$app->post('/addepatient', function () use ($app) {
+
+    // TODO:  Continue integrating, but not have to rely on hard-coded constants for form names
+    // verifyRequiredParams(array('employeenumber', 'jobtitle', 'password', 'employeename'));
+    $data = json_decode(file_get_contents("php://input"));
+    $response = array();
+
+    $patientName = $data->patientname;
+    $phoneNumber = $data->phonenumber;
+    $address = $data->address;
+    $city = $data->city;
+    $state= $data->state;
+    $zipCode = $data->zipcode;
+    $insuranceCarrierId = $data->insurancecarrierid;
+    $dateOfBirth = $data->dateofbirth;
+    $gender = $data->gender;
+    $physician = $data->physician;
+
+
+    $pdb = new DbOperation();
+    $res = $pdb->addElectronicPatient($patientName, $phoneNumber, $address, $city, $state, $zipCode, (int)$insuranceCarrierId, $dateOfBirth, $gender, $physician);
+
+    if ($res == 0) {
+        $response["error"] = true;
+        $response["message"] = "An error occurred while adding a new user";
+        echoResponse(400, $response);
+    }
+
+    $response["error"] = false;
+    $response["message"] = "User successfully added";
+    return echoResponse(201, $response);
+
+});    
+
+/* *
+ * NOTE:  This adds a user to the database via POST whose Content-Type:
+ *        application/x-www-form-urlencoded.  This also uses the $app
+ *        from the SLIM framework
+ * URL: http://localhost/Services/v1/adduser
+ * Parameters: employeenumber, jobtitle, password, employeename
+ * Method: POST
+ * */
+$app->post('/addepatient2', function () use ($app) {
+
+    // TODO:  Continue integrating, but not have to rely on hard-coded constants for form names
+    // verifyRequiredParams(array('employeenumber', 'jobtitle', 'password', 'employeename'));
+    $response = array();
+
+    $patientName = $app->request->post('patientname');
+    $phoneNumber = $app->request->post('phonenumber');
+    $address = $app->request->post('address');
+    $city = $app->request->post('city');
+    $state = $app->request->post('state');
+    $zipCode = $app->request->post('zipcode');
+    $insuranceCarrierId = $app->request->post('insurancecarrierid');
+    $dateOfBirth = $app->request->post('dateofbirth');
+    $gender = $app->request->post('gender');
+    $physician = $app->request->post('physician');
+
+    $pdb = new DbOperation();
+    $res = $pdb->addElectronicPatientX($patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician);
+
+    if ($res == 0) {
+        $response["error"] = true;
+        // $response["message"] = "An error occurred while adding a new user";
+        $response["message"] = $res . " - NADA - " . $patientName;
+        return echoResponse(400, $response);
+    }
+
+    $response["error"] = false;
+    $response["message"] = "Patient successfully added";
+    return echoResponse(201, $response);
+
+});
+
+/* *
+ * URL: http://localhost/Services/v1/addepatient
+ * Parameters: none
+ * Authorization: Put API Key in Request Header
+ * Method: GET
+ * */
+$app->post('/addepatient', function () use ($app) {
+
+    // TODO:  Continue integrating, but not have to rely on hard-coded constants for form names
+    // verifyRequiredParams(array('employeenumber', 'jobtitle', 'password', 'employeename'));
+    $data = json_decode(file_get_contents("php://input"));
+    $response = array();
+
+    $patientName = $data->$patientname;
+    $phoneNumber = $data->$phonenumber;
+    $address = $data->$address;
+    $city = $data->$city;
+    $state = $data->$state;
+    $zipCode = $data->$zipcode;
+    $insuranceCarrierId = (int)$data->$insurancecarrierid;
+    $dateOfBirth = $data->$dateofbirth;
+    $gender = $data->$gender;
+    $physician = $data->$physician;
+
+    $pdb = new DbOperation();
+    $res = $pdb->addElectronicPatient($patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician);
+
+    if ($res == 0) {
+        $response["error"] = true;
+        $response["message"] = "An error occurred while adding a new user";
+        echoResponse(400, $response);
+    }
+
+    $response["error"] = false;
+    $response["message"] = "User successfully added";
+    return echoResponse(201, $response);
+
 });
 
 
@@ -120,6 +246,10 @@ $app->get('/patient/:id', function($patient_id) use ($app){
  * Private methods....
  * ----------------------------------------------------------------------------------------------------
  */
+function initializeResponseObject() {
+    return array('error' => false, 'payload' => array());
+}
+
 function echoResponse($status_code, $response)
 {
     $app = \Slim\Slim::getInstance();

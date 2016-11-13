@@ -103,7 +103,7 @@ class DbOperation
             $rezuts = $stmt->execute();
             $stmt->store_result();
             $num_rows = $stmt->num_rows;
-            $results = "STATUS:  [" . $rezuts . "] = " . $num_rows;
+            $results = "STATUS:  [" . $stmt->error . " - " . $patientName . "] = " . $num_rows;
             $stmt->close();
         } catch (Exception $e) {
             $results = "ERROR:  " . $e->errorMessage();
