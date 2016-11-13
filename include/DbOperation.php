@@ -129,6 +129,32 @@ class DbOperation
         return $affected > 0 ;        
     }
 
+    public function updateElectronicPatient($patientName, $phoneNumber, $address, $city, $state, 
+        $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician, $patientid) {
+
+        $query  = "UPDATE electronicpatient SET ";
+        $query .= " PatientName = ?, ";
+        $query .= " PhoneNumber = ?, ";
+        $query .= " Address = ?, ";
+        $query .= " City = ?, ";
+        $query .= " State = ?, ";
+        $query .= " ZipCode = ?, ";
+        $query .= " InsuranceCarrierId = ?, ";
+        $query .= " DateOfBirth = ?, ";
+        $query .= " Gender = ?, ";
+        $query .= " Physician = ? ";
+        $query .= "WHERE PatientId = ?";
+
+
+        $statement = $this->pdo->prepare($query);
+        // $hashedPassword = md5($password);
+        $dateEntered = date('Y-m-d H:i:s');
+
+        // This works instead of execute(array(arg1, ..)), so use this...
+        $affected = $statement->execute(func_get_args());
+        return $affected > 0 ;        
+    }    
+
     // --------------------------------------------------------------------------------------------------
     //Method to check the student username already exist or not
     private function isStudentExists($username) {

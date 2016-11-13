@@ -156,7 +156,7 @@ $app->post('/addepatient', function () use ($app) {
     }
 
     $response["error"] = false;
-    $response["message"] = "User successfully added";
+    $response["message"] = "Patient successfully added - WORKING";
     return echoResponse(201, $response);
 
 });    
@@ -197,50 +197,46 @@ $app->post('/addepatient2', function () use ($app) {
     }
 
     $response["error"] = false;
-    $response["message"] = "Patient successfully added";
+    $response["message"] = "Patient successfully added NOW";
     return echoResponse(201, $response);
 
 });
 
 /* *
- * URL: http://localhost/Services/v1/addepatient
+ * URL: http://localhost/Services/v1/submitassignment/<assignment_id>
  * Parameters: none
  * Authorization: Put API Key in Request Header
- * Method: GET
+ * Method: PUT
  * */
-$app->post('/addepatient', function () use ($app) {
 
-    // TODO:  Continue integrating, but not have to rely on hard-coded constants for form names
-    // verifyRequiredParams(array('employeenumber', 'jobtitle', 'password', 'employeename'));
+$app->put('/updatepatient/:id', function($patientid) use ($app){
+
     $data = json_decode(file_get_contents("php://input"));
     $response = array();
 
-    $patientName = $data->$patientname;
-    $phoneNumber = $data->$phonenumber;
-    $address = $data->$address;
-    $city = $data->$city;
-    $state = $data->$state;
-    $zipCode = $data->$zipcode;
-    $insuranceCarrierId = (int)$data->$insurancecarrierid;
-    $dateOfBirth = $data->$dateofbirth;
-    $gender = $data->$gender;
-    $physician = $data->$physician;
+    $patientName = $data->patientname;
+    $phoneNumber = $data->phonenumber;
+    $address = $data->address;
+    $city = $data->city;
+    $state= $data->state;
+    $zipCode = $data->zipcode;
+    $insuranceCarrierId = $data->insurancecarrierid;
+    $dateOfBirth = $data->dateofbirth;
+    $gender = $data->gender;
+    $physician = $data->physician;
 
-    $pdb = new DbOperation();
-    $res = $pdb->addElectronicPatient($patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician);
+    $db = new DbOperation();
+    $result = $db->updateElectronicPatient($patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician, $patientid);
 
-    if ($res == 0) {
-        $response["error"] = true;
-        $response["message"] = "An error occurred while adding a new user";
-        echoResponse(400, $response);
+    if ($result){
+        $response['error'] = false;
+        $response['message'] = "Assignment submitted successfully";
+    } else {
+        $response['error'] = true;
+        $response['message'] = "Could not submit assignment";
     }
-
-    $response["error"] = false;
-    $response["message"] = "User successfully added";
-    return echoResponse(201, $response);
-
+    echoResponse(200,$response);
 });
-
 
 /*
  * Private methods....
