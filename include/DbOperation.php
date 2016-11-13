@@ -103,7 +103,7 @@ class DbOperation
             $rezuts = $stmt->execute();
             $stmt->store_result();
             $num_rows = $stmt->num_rows;
-            $results = "STATUS:  [" . $stmt->error . " - " . $patientName . "] = " . $num_rows;
+            $results = $num_rows;
             $stmt->close();
         } catch (Exception $e) {
             $results = "ERROR:  " . $e->errorMessage();
@@ -123,8 +123,9 @@ class DbOperation
         $statement = $this->pdo->prepare($query);
         // $hashedPassword = md5($password);
         $dateEntered = date('Y-m-d H:i:s');
-        $affected = $statement->execute(array($patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician));
-        // $affected = $statement->execute(func_get_args());
+
+        // This works instead of execute(array(arg1, ..)), so use this...
+        $affected = $statement->execute(func_get_args());
         return $affected > 0 ;        
     }
 
