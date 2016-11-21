@@ -134,16 +134,16 @@ $app->post('/addepatient', function () use ($app) {
     $data = json_decode(file_get_contents("php://input"));
     $response = array();
 
-    $patientName = $data->patientname;
-    $phoneNumber = $data->phonenumber;
-    $address = $data->address;
-    $city = $data->city;
-    $state= $data->state;
-    $zipCode = $data->zipcode;
-    $insuranceCarrierId = $data->insurancecarrierid;
-    $dateOfBirth = $data->dateofbirth;
-    $gender = $data->gender;
-    $physician = $data->physician;
+    $patientName = $data->PatientName;
+    $phoneNumber = $data->PhoneNumber;
+    $address = $data->Address;
+    $city = $data->City;
+    $state= $data->State;
+    $zipCode = $data->ZipCode;
+    $insuranceCarrierId = $data->InsuranceCarrierId;
+    $dateOfBirth = $data->DateOfBirth;
+    $gender = $data->Gender;
+    $physician = $data->Physician;
 
 
     $pdb = new DbOperation();
@@ -175,16 +175,16 @@ $app->post('/addepatient2', function () use ($app) {
     // verifyRequiredParams(array('employeenumber', 'jobtitle', 'password', 'employeename'));
     $response = array();
 
-    $patientName = $app->request->post('patientname');
-    $phoneNumber = $app->request->post('phonenumber');
-    $address = $app->request->post('address');
-    $city = $app->request->post('city');
-    $state = $app->request->post('state');
-    $zipCode = $app->request->post('zipcode');
-    $insuranceCarrierId = $app->request->post('insurancecarrierid');
-    $dateOfBirth = $app->request->post('dateofbirth');
-    $gender = $app->request->post('gender');
-    $physician = $app->request->post('physician');
+    $patientName = $app->request->post('PatientName');
+    $phoneNumber = $app->request->post('PhoneNumber');
+    $address = $app->request->post('Address');
+    $city = $app->request->post('City');
+    $state = $app->request->post('State');
+    $zipCode = $app->request->post('Zipcode');
+    $insuranceCarrierId = $app->request->post('InsuranceCarrierId');
+    $dateOfBirth = $app->request->post('DateOfBirth');
+    $gender = $app->request->post('Gender');
+    $physician = $app->request->post('Physician');
 
     $pdb = new DbOperation();
     $res = $pdb->addElectronicPatientX($patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician);
