@@ -1,5 +1,5 @@
 <?php
-
+// This does the work...
 class DbOperation
 {
     private $con;
@@ -13,23 +13,11 @@ class DbOperation
         $this->pdo = $db->pdoConnect();
     }
 
-    // Method to register a new student
-    public function createStudent($name,$username,$pass){
-        if (!$this->isStudentExists($username)) {
-            $password = md5($pass);
-            $apikey = $this->generateApiKey();
-            $stmt = $this->con->prepare("INSERT INTO allstudents (name, username, password, api_key) values(?, ?, ?, ?)");
-            $stmt->bind_param("ssss", $name, $username, $password, $apikey);
-            $result = $stmt->execute();
-            $stmt->close();
-            if ($result) {
-                return 0;
-            } else {
-                return 1;
-            }
-        } else {
-            return 2;
-        }
+    // TODO:  Add exception handling to this in case query barfs...
+    public function executeQueryToReturnData($query) {
+        $statement = $this->pdo->prepare($query);
+        $statement->execute();
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Start with this one as this method uses PDO
@@ -41,18 +29,8 @@ class DbOperation
         return $affected > 0 ;
     }
 
-    // Method to let a student log in
-    public function studentLogin($username,$pass){
-        $password = md5($pass);
-        $stmt = $this->con->prepare("SELECT * FROM allstudents WHERE username=? and password=?");
-        $stmt->bind_param("ss",$username,$password);
-        $stmt->execute();
-        $stmt->store_result();
-        $num_rows = $stmt->num_rows;
-        $stmt->close();
-        return $num_rows>0;
-    }
-
+    // TODO:  Since alot of this code are duplicates, create one generic method (executeQueryToReturnData)
+    // to handle a query then pass the query to the generic method
     public function getAllCarriers() {
         $query = "SELECT InsuranceCarrierId, Carrier FROM insurancecarrier WHERE Active = 1";
 
@@ -63,6 +41,8 @@ class DbOperation
         return $rows;
     }
 
+    // TODO:  Since alot of this code are duplicates, create one generic method (executeQueryToReturnData)
+    // to handle a query then pass the query to the generic method
     public function getAllPatients() {
 
         $query = "SELECT PatientId, PatientName, PhoneNumber, Address, City, State, ZipCode";
@@ -88,32 +68,8 @@ class DbOperation
         return $row;
     }
 
-    public function addElectronicPatientX($patientName, $phoneNumber, $address, $city, $state, 
-        $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician) {
-
-        $query = "INSERT INTO electronicpatient ";
-        $query .= "(PatientName, PhoneNumber, Address, City, State, ZipCode, InsuranceCarrierId, DateOfBirth, Gender, Physician) VALUES ";
-        $query .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        $results = "";
-
-        try {
-            $stmt = $this->con->prepare($query);
-            $stmt->bind_param("ssssssssss", $patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician);
-            $rezuts = $stmt->execute();
-            $stmt->store_result();
-            $num_rows = $stmt->num_rows;
-            $results = $num_rows;
-            $stmt->close();
-        } catch (Exception $e) {
-            $results = "ERROR:  " . $e->errorMessage();
-        }
-
-        return $results;
-    }
-
-    public function addElectronicPatient($patientName, $phoneNumber, $address, $city, $state, 
-        $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician) {
+    public function addElectronicPatient($patientName, $phoneNumber, $address, $city, $state,
+                                         $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician) {
 
         $query = "INSERT INTO electronicpatient ";
         $query .= "(PatientName, PhoneNumber, Address, City, State, ZipCode, InsuranceCarrierId, DateOfBirth, Gender, Physician) VALUES ";
@@ -126,11 +82,11 @@ class DbOperation
 
         // This works instead of execute(array(arg1, ..)), so use this...
         $affected = $statement->execute(func_get_args());
-        return $affected > 0 ;        
+        return $affected > 0 ;
     }
 
-    public function updateElectronicPatient($patientName, $phoneNumber, $address, $city, $state, 
-        $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician, $patientid) {
+    public function updateElectronicPatient($patientName, $phoneNumber, $address, $city, $state,
+                                            $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician, $patientid) {
 
         $query  = "UPDATE electronicpatient SET ";
         $query .= " PatientName = ?, ";
@@ -152,10 +108,182 @@ class DbOperation
 
         // This works instead of execute(array(arg1, ..)), so use this...
         $affected = $statement->execute(func_get_args());
-        return $affected > 0 ;        
-    }    
+        return $affected > 0 ;
+    }
 
-    // --------------------------------------------------------------------------------------------------
+    // TODO:  Since alot of this code are duplicates, create one generic method (executeQueryToReturnData)
+    // to handle a query then pass the query to the generic method
+    public function getPatientsForDropdown() {
+        $query = "SELECT PatientId, PatientName FROM electronicpatient;";
+        return $this->executeQueryToReturnData($query);
+    }
+
+    public function getMedicalEncounters() {
+
+        $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
+        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId FROM medicalencounter;";
+
+        return $this->executeQueryToReturnData($query);
+    }
+
+    public function getMedicalEncounterById($medicalencounterid) {
+
+        $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
+        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId FROM medicalencounter WHERE MedicalEncounterId = ?";
+
+        $statement = $this->pdo->prepare($query);
+        $statement->execute(func_get_args());
+        $row = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        return $row;
+    }
+
+    public function addMedicalEncounter($encounterDate, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis,
+                                        $treatmentPlan, $referral, $followupNotes, $patientId) {
+
+        $query = "INSERT INTO medicalencounter ";
+        $query .= "(EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, diagnosis, TreatmentPlan, Referral, FollowUpNotes, PatientId) VALUES ";
+        $query .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+
+        $statement = $this->pdo->prepare($query);
+        // $hashedPassword = md5($password);
+        $dateEntered = date('Y-m-d H:i:s');
+
+        // This works instead of execute(array(arg1, ..)), so use this...
+        $affected = $statement->execute(func_get_args());
+        return $affected > 0;
+    }
+
+    public function updateMedicalEncounter($encounterDate, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis,
+                                           $treatmentPlan, $referral, $followupNotes, $patientId, $medicalEncounterId) {
+
+        $query  = "UPDATE medicalencounter  ";
+        $query .= "SET ";
+        $query .= "	EncounterDate = ?  ";
+        $query .= "	,Complaint = ?  ";
+        $query .= "	,VitalSigns = ?  ";
+        $query .= "	,Notes = ?  ";
+        $query .= "	,PharmacyOrder = ?  ";
+        $query .= "	,Diagnosis = ?  ";
+        $query .= "	,TreatmentPlan = ?  ";
+        $query .= "	,Referral = ?  ";
+        $query .= "	,FollowUpNotes = ?  ";
+        $query .= "	,PatientId = ?  ";
+        $query .= "WHERE ";
+        $query .= "	MedicalEncounterId = ? ";
+
+        $statement = $this->pdo->prepare($query);
+        $affected = $statement->execute(func_get_args());
+        return $affected > 0 ;
+    }
+
+    // TODO:  Remove everything below and use PDO
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //method to register a new faculty
+    public function createFaculty($name,$username,$pass,$subject){
+        if (!$this->isFacultyExists($username)) {
+            $password = md5($pass);
+            $apikey = $this->generateApiKey();
+            $stmt = $this->con->prepare("INSERT INTO faculties (name, username, password, subject, api_key) values(?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssss", $name, $username, $password, $subject, $apikey);
+            $result = $stmt->execute();
+            $stmt->close();
+            if ($result) {
+                return 0;
+            } else {
+                return 1;
+            }
+        } else {
+            return 2;
+        }
+    }
+
+    //method to let a faculty log in
+    public function facultyLogin($username, $pass){
+        $password = md5($pass);
+        $stmt = $this->con->prepare("SELECT * FROM faculties WHERE username=? and password =?");
+        $stmt->bind_param("ss",$username,$password);
+        $stmt->execute();
+        $stmt->store_result();
+        $num_rows = $stmt->num_rows;
+        $stmt->close();
+        return $num_rows>0;
+    }
+
+    //Method to create a new assignment
+    public function createAssignment($name,$detail,$facultyid,$studentid){
+        $stmt = $this->con->prepare("INSERT INTO assignments (name,details,faculties_id,students_id) VALUES (?,?,?,?)");
+        $stmt->bind_param("ssii",$name,$detail,$facultyid,$studentid);
+        $result = $stmt->execute();
+        $stmt->close();
+        if($result){
+            return true;
+        }
+        return false;
+    }
+
+    //Method to update assignment status
+    public function updateAssignment($id){
+        $stmt = $this->con->prepare("UPDATE assignments SET completed = 1 WHERE id=?");
+        $stmt->bind_param("i",$id);
+        $result = $stmt->execute();
+        $stmt->close();
+        if($result){
+            return true;
+        }
+        return false;
+    }
+
+    //Method to get all the assignments of a particular student
+    public function getAssignments($studentid){
+        $stmt = $this->con->prepare("SELECT * FROM assignments WHERE students_id=?");
+        $stmt->bind_param("i",$studentid);
+        $stmt->execute();
+        $assignments = $stmt->get_result();
+        $stmt->close();
+        return $assignments;
+    }
+
+    //Method to get student details
+    public function getStudent($username){
+        $stmt = $this->con->prepare("SELECT * FROM allstudents WHERE username=?");
+        $stmt->bind_param("s",$username);
+        $stmt->execute();
+        $student = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $student;
+    }
+
+    //Method to fetch all students from database
+    public function getAllStudents(){
+        $stmt = $this->con->prepare("SELECT * FROM allstudents");
+        $stmt->execute();
+        $students = $stmt->get_result();
+        $stmt->close();
+        return $students;
+    }
+
+    //Method to get faculy details by username
+    public function getFaculty($username){
+        $stmt = $this->con->prepare("SELECT * FROM faculties WHERE username=?");
+        $stmt->bind_param("s",$username);
+        $stmt->execute();
+        $faculty = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $faculty;
+    }
+
+    //Method to get faculty name by id
+    public function getFacultyName($id){
+        $stmt = $this->con->prepare("SELECT name FROM faculties WHERE id=?");
+        $stmt->bind_param("i",$id);
+        $stmt->execute();
+        $faculty = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $faculty['name'];
+    }
+
     //Method to check the student username already exist or not
     private function isStudentExists($username) {
         $stmt = $this->con->prepare("SELECT id from allstudents WHERE username = ?");
