@@ -8,6 +8,17 @@ require '../libs/Slim/Slim.php';
 
 $app = new \Slim\Slim();
 
+require '../libs/Slim/CorsSlim.php';
+
+$corsOptions = array(
+    "origin" => "*",
+    "exposeHeaders" => array("Content-Type", "X-Requested-With", "X-authentication", "X-client"),
+    "allowMethods" => array('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS')
+);
+
+$cors = new \CorsSlim\CorsSlim($corsOptions);
+$app->add($cors);
+
 /* *
  * NOTE:  This adds a user to the database via POST whose Content-Type:  application/json.
  *        This does *NOT* use directly take advantage of the SLIM framework
