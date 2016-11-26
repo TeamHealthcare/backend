@@ -14,10 +14,20 @@ class DbOperation
     }
 
     // TODO:  Add exception handling to this in case query barfs...
-    public function executeQueryToReturnData($query) {
+    public function executeQueryToReturnData($query, $array) {
         $statement = $this->pdo->prepare($query);
-        $statement->execute();
+        if (count($array) == 0)
+            $statement->execute();
+        else
+            $statement->execute($array);
+
         return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // TODO:  Add exception handling to this in case query barfs...
+    public function executeAddUpdateQuery($query, $array) {
+        $statement = $this->pdo->prepare($query);
+        return $statement->execute($array) > 0;
     }
 
     // Start with this one as this method uses PDO
@@ -29,20 +39,57 @@ class DbOperation
         return $affected > 0 ;
     }
 
-    // TODO:  Since alot of this code are duplicates, create one generic method (executeQueryToReturnData)
-    // to handle a query then pass the query to the generic method
+    // START CARRIER
     public function getAllCarriers() {
         $query = "SELECT InsuranceCarrierId, Carrier FROM insurancecarrier WHERE Active = 1";
-
-        $statement = $this->pdo->prepare($query);
-        $statement->execute();
-        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        return $rows;
+        return $this->executeQueryToReturnData($query, []);
     }
 
-    // TODO:  Since alot of this code are duplicates, create one generic method (executeQueryToReturnData)
-    // to handle a query then pass the query to the generic method
+    public function getCarrierById($insuranceCarrierId) {
+
+        $query = "SELECT InsuranceCarrierId, Carrier, Address, Active FROM insurancecarrier WHERE InsuranceCarrierId = ?";
+        return $this->executeQueryToReturnData($query, func_get_args());
+    }
+
+    public function addCarrier($carrier, $address) {
+        $query = "INSERT INTO insurancecarrier (Carrier, Address, Active) VALUES (?, ?, 1)";
+        return $this->executeAddUpdateQuery($query, func_get_args());
+    }
+
+    public function updateCarrier($carrier, $address, $active, $insuranceCarrierId) {
+        $query = "UPDATE insurancecarrier SET Carrier = ?, Address = ?, Active = ? WHERE InsuranceCarrierId = ?";
+        return $this->executeAddUpdateQuery($query, func_get_args());
+    }
+    // END CARRIER
+
+    // START SERVICE
+    public function getAllServices() {
+        $query = "SELECT ServiceId, InsuranceCarrierId, Description, Cost FROM service";
+        return $this->executeQueryToReturnData($query, []);
+    }
+
+    public function getAllServicesByCarrier($insuranceCarrierId) {
+        $query = "SELECT ServiceId, InsuranceCarrierId, Description, Cost FROM service WHERE InsuranceCarrierId = ?";
+        return $this->executeQueryToReturnData($query, func_get_args());
+    }
+
+    public function getServiceById($serviceId) {
+        $query = "SELECT ServiceId, InsuranceCarrierId, Description, Cost FROM service WHERE ServiceId = ?";
+        return $this->executeQueryToReturnData($query, func_get_args());
+    }
+
+    public function addService($insuranceCarrierId, $description, $cost) {
+        $query = "INSERT INTO service (InsuranceCarrierId, Description, Cost) VALUES (?, ?, ?)";
+        return $this->executeAddUpdateQuery($query, func_get_args());
+    }
+
+    public function updateService($insuranceCarrierId, $description, $cost, $serviceId) {
+        $query = "UPDATE service SET InsuranceCarrierId = ?, Description = ?, Cost = ? WHERE ServiceId = ?";
+        return $this->executeAddUpdateQuery($query, func_get_args());
+    }
+    // END SERVICE
+
+    // TODO:  RETROFIT TO WORK LIKE CARRIER
     public function getAllPatients() {
 
         $query = "SELECT PatientId, PatientName, PhoneNumber, Address, City, State, ZipCode";
@@ -75,12 +122,7 @@ class DbOperation
         $query .= "(PatientName, PhoneNumber, Address, City, State, ZipCode, InsuranceCarrierId, DateOfBirth, Gender, Physician) VALUES ";
         $query .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-
         $statement = $this->pdo->prepare($query);
-        // $hashedPassword = md5($password);
-        $dateEntered = date('Y-m-d H:i:s');
-
-        // This works instead of execute(array(arg1, ..)), so use this...
         $affected = $statement->execute(func_get_args());
         return $affected > 0 ;
     }
@@ -101,23 +143,20 @@ class DbOperation
         $query .= " Physician = ? ";
         $query .= "WHERE PatientId = ?";
 
-
         $statement = $this->pdo->prepare($query);
-        // $hashedPassword = md5($password);
-        $dateEntered = date('Y-m-d H:i:s');
-
-        // This works instead of execute(array(arg1, ..)), so use this...
         $affected = $statement->execute(func_get_args());
         return $affected > 0 ;
     }
 
-    // TODO:  Since alot of this code are duplicates, create one generic method (executeQueryToReturnData)
+    // TODO:  Since a lot of this code are duplicates, create one generic method (executeQueryToReturnData)
     // to handle a query then pass the query to the generic method
     public function getPatientsForDropdown() {
         $query = "SELECT PatientId, PatientName FROM electronicpatient;";
         return $this->executeQueryToReturnData($query);
     }
+    // END TO RETROFIT TO WORK LIKE CARRIER
 
+    // TODO:  RETROFIT MEDICAL ENCOUNTER TO WORK LIKE CARRIER
     public function getMedicalEncounters() {
 
         $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
@@ -177,6 +216,7 @@ class DbOperation
         $affected = $statement->execute(func_get_args());
         return $affected > 0 ;
     }
+    // END TO RETROFIT MEDICAL ENCOUNTER TO WORK LIKE CARRIER
 
     // TODO:  Remove everything below and use PDO
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////

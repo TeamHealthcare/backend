@@ -67,6 +67,185 @@ $app->get('/carriers', function() use ($app){
     echoResponse(200, $response);
 });
 
+/* *
+ * URL: http://localhost/Services/v1/carrier/<carrier_id>
+ * Parameters: none
+ * Authorization: Put API Key in Request Header
+ * Method: GET
+ * */
+$app->get('/carrier/:id', function($carrierId) use ($app){
+
+    $response = initializeResponseObject();
+    $db = new DbOperation();
+    $response['payload'] = $db->getCarrierById($carrierId);
+    echoResponse(200, $response);
+});
+
+/* *
+ * NOTE:  This adds a user to the database via POST whose Content-Type:  application/json.
+ *        This does *NOT* use directly take advantage of the SLIM framework
+ *
+ * URL: http://localhost/Services/v1/addcarrier
+ * Parameters: $_POST[] parameters
+ * Method: POST
+ * */
+$app->post('/addcarrier', function () use ($app) {
+
+    $data = json_decode(file_get_contents("php://input"));
+    $response = array();
+
+    $carrier = $data->carrier;
+    $address = $data->address;
+
+    $pdb = new DbOperation();
+    $res = $pdb->addCarrier($carrier, $address);
+
+    if ($res == 0) {
+        $response["error"] = true;
+        $response["message"] = "An error occurred while adding a new insurance carrier";
+        echoResponse(400, $response);
+    }
+
+    $response["error"] = false;
+    $response["message"] = "Carrier successfully added - WORKING";
+    return echoResponse(201, $response);
+});
+
+/* *
+ * NOTE:  This adds a user to the database via POST whose Content-Type:  application/json.
+ *        This does *NOT* use directly take advantage of the SLIM framework
+ *
+ * URL: http://localhost/Services/v1/updatecarrier
+ * Parameters: $_POST[] parameters
+ * Method: POST
+ * */
+$app->put('/updatecarrier/:id', function ($insuranceCarrierId) use ($app) {
+
+    $data = json_decode(file_get_contents("php://input"));
+    $response = array();
+
+    $carrier = $data->carrier;
+    $address = $data->address;
+    $active = $data->active;
+
+    $pdb = new DbOperation();
+    $res = $pdb->updateCarrier($carrier, $address, $active, $insuranceCarrierId);
+
+    if ($res == 0) {
+        $response["error"] = true;
+        $response["message"] = "An error occurred while adding a new insurance carrier";
+        echoResponse(400, $response);
+    }
+
+    $response["error"] = false;
+    $response["message"] = "Carrier successfully updated - WORKING";
+    return echoResponse(201, $response);
+});
+
+/*
+ * URL: http://localhost/Services/v1/services
+ * Parameters: none
+ * Authorization: Put API Key in Request Header
+ * Method: GET
+ * */
+$app->get('/services', function() use ($app){
+
+    $response = initializeResponseObject();
+    $db = new DbOperation();
+    $response['payload'] = $db->getAllServices();
+    echoResponse(200, $response);
+});
+
+/*
+ * URL: http://localhost/Services/v1/servicesbycarrier/id
+ * Parameters: none
+ * Authorization: Put API Key in Request Header
+ * Method: GET
+ * */
+$app->get('/servicesbycarrier/:id', function($insuranceCarrierId) use ($app){
+
+    $response = initializeResponseObject();
+    $db = new DbOperation();
+    $response['payload'] = $db->getAllServicesByCarrier($insuranceCarrierId);
+    echoResponse(200, $response);
+});
+
+/* *
+ * URL: http://localhost/Services/v1/service/<service_id>
+ * Parameters: none
+ * Authorization: Put API Key in Request Header
+ * Method: GET
+ * */
+$app->get('/service/:id', function($serviceId) use ($app){
+
+    $response = initializeResponseObject();
+    $db = new DbOperation();
+    $response['payload'] = $db->getServiceById($serviceId);
+    echoResponse(200, $response);
+});
+
+/* *
+ * NOTE:  This adds a user to the database via POST whose Content-Type:  application/json.
+ *        This does *NOT* use directly take advantage of the SLIM framework
+ *
+ * URL: http://localhost/Services/v1/addservice
+ * Parameters: $_POST[] parameters
+ * Method: POST
+ * */
+$app->post('/addservice', function () use ($app) {
+
+    $data = json_decode(file_get_contents("php://input"));
+    $response = array();
+
+    $insuranceCarrierId = $data->insurancecarrierid;
+    $description = $data->description;
+    $cost = $data->cost;
+
+    $pdb = new DbOperation();
+    $res = $pdb->addService($insuranceCarrierId, $description, $cost);
+
+    if ($res == 0) {
+        $response["error"] = true;
+        $response["message"] = "An error occurred while adding a new insurance carrier";
+        echoResponse(400, $response);
+    }
+
+    $response["error"] = false;
+    $response["message"] = "Service successfully added - WORKING";
+    return echoResponse(201, $response);
+});
+
+/* *
+ * NOTE:  This adds a user to the database via POST whose Content-Type:  application/json.
+ *        This does *NOT* use directly take advantage of the SLIM framework
+ *
+ * URL: http://localhost/Services/v1/updateservice/9
+ * Parameters: $_POST[] parameters
+ * Method: POST
+ * */
+$app->put('/updateservice/:id', function ($serviceId) use ($app) {
+
+    $data = json_decode(file_get_contents("php://input"));
+    $response = array();
+
+    $insuranceCarrierId = $data->insurancecarrierid;
+    $description = $data->description;
+    $cost = $data->cost;
+
+    $pdb = new DbOperation();
+    $res = $pdb->updateService($insuranceCarrierId, $description, $cost, $serviceId);
+
+    if ($res == 0) {
+        $response["error"] = true;
+        $response["message"] = "An error occurred while adding a new insurance carrier";
+        echoResponse(400, $response);
+    }
+
+    $response["error"] = false;
+    $response["message"] = "Service successfully updated - WORKING";
+    return echoResponse(201, $response);
+});
+
 /*
  * URL: http://localhost/Services/v1/patients
  * Parameters: none
