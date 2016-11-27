@@ -96,7 +96,7 @@ class DbOperation
 //        $query .= ", InsuranceCarrierId, DateOfBirth, Gender, Physician FROM electronicpatient;";
 
         $query = "SELECT PatientId, PatientName, PhoneNumber, Address, City, State, ZipCode";
-        $query .= ", InsuranceCarrierId, DateOfBirth, Gender FROM electronicpatient;";
+        $query .= ", InsuranceCarrierId, DateOfBirth, Gender, Physician FROM electronicpatient;";
         $statement = $this->pdo->prepare($query);
         $statement->execute();
         $rows = $statement->fetchAll(PDO::FETCH_ASSOC);

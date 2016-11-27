@@ -327,16 +327,16 @@ $app->put('/updatepatient/:id', function($patientid) use ($app){
     $data = json_decode(file_get_contents("php://input"));
     $response = array();
 
-    $patientName = $app->request->post('PatientName');
-    $phoneNumber = $app->request->post('PhoneNumber');
-    $address = $app->request->post('Address');
-    $city = $app->request->post('City');
-    $state = $app->request->post('State');
-    $zipCode = $app->request->post('Zipcode');
-    $insuranceCarrierId = $app->request->post('InsuranceCarrierId');
-    $dateOfBirth = $app->request->post('DateOfBirth');
-    $gender = $app->request->post('Gender');
-    $physician = $app->request->post('Physician');
+    $patientName = $data->PatientName;
+    $phoneNumber = $data->PhoneNumber;
+    $address = $data->Address;
+    $city = $data->City;
+    $state = $data->State;
+    $zipCode = $data->ZipCode;
+    $insuranceCarrierId = $data->InsuranceCarrierId;
+    $dateOfBirth = $data->DateOfBirth;
+    $gender = $data->Gender;
+    $physician = $data->Physician;
 
     $db = new DbOperation();
     $result = $db->updateElectronicPatient($patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician, $patientid);
