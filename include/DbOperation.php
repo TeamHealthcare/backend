@@ -97,9 +97,11 @@ class DbOperation
     // TODO:  RETROFIT TO WORK LIKE CARRIER
     public function getAllPatients() {
 
+//        $query = "SELECT PatientId, PatientName, PhoneNumber, Address, City, State, ZipCode";
+//        $query .= ", InsuranceCarrierId, DateOfBirth, Gender, Physician FROM electronicpatient;";
+
         $query = "SELECT PatientId, PatientName, PhoneNumber, Address, City, State, ZipCode";
         $query .= ", InsuranceCarrierId, DateOfBirth, Gender, Physician FROM electronicpatient;";
-
         $statement = $this->pdo->prepare($query);
         $statement->execute();
         $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -165,15 +167,15 @@ class DbOperation
     public function getMedicalEncounters() {
 
         $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
-        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId FROM medicalencounter;";
+        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId, LabOrderId FROM medicalencounter;";
 
-        return $this->executeQueryToReturnData($query);
+        return $this->executeQueryToReturnData($query,[]);
     }
 
     public function getMedicalEncounterById($medicalencounterid) {
 
         $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
-        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId FROM medicalencounter WHERE MedicalEncounterId = ?";
+        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId, LabOrderId FROM medicalencounter WHERE MedicalEncounterId = ?";
 
         $statement = $this->pdo->prepare($query);
         $statement->execute(func_get_args());
@@ -182,12 +184,12 @@ class DbOperation
         return $row;
     }
 
-    public function addMedicalEncounter($encounterDate, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis,
+    public function addMedicalEncounter($encounterDate, $labOrderId, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis,
                                         $treatmentPlan, $referral, $followupNotes, $patientId) {
 
         $query = "INSERT INTO medicalencounter ";
-        $query .= "(EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, diagnosis, TreatmentPlan, Referral, FollowUpNotes, PatientId) VALUES ";
-        $query .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $query .= "(EncounterDate, LabOrderId, Complaint, VitalSigns, Notes, PharmacyOrder, diagnosis, TreatmentPlan, Referral, FollowUpNotes, PatientId) VALUES ";
+        $query .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
         $statement = $this->pdo->prepare($query);

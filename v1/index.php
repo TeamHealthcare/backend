@@ -304,6 +304,7 @@ $app->get('/patient/:id', function($patient_id) use ($app){
     echoResponse(200,$response);
 });
 
+
 /* *
  * NOTE:  This adds a user to the database via POST whose Content-Type:  application/json.
  *        This does *NOT* use directly take advantage of the SLIM framework
@@ -319,16 +320,16 @@ $app->post('/addepatient', function () use ($app) {
     $data = json_decode(file_get_contents("php://input"));
     $response = array();
 
-    $patientName = $data->patientname;
-    $phoneNumber = $data->phonenumber;
-    $address = $data->address;
-    $city = $data->city;
-    $state= $data->state;
-    $zipCode = $data->zipcode;
-    $insuranceCarrierId = $data->insurancecarrierid;
-    $dateOfBirth = $data->dateofbirth;
-    $gender = $data->gender;
-    $physician = $data->physician;
+    $patientName = $data->PatientName;
+    $phoneNumber = $data->PhoneNumber;
+    $address = $data->Address;
+    $city = $data->City;
+    $state= $data->State;
+    $zipCode = $data->ZipCode;
+    $insuranceCarrierId = $data->InsuranceCarrierId;
+    $dateOfBirth = $data->DateOfBirth;
+    $gender = $data->Gender;
+    $physician = $data->Physician;
 
 
     $pdb = new DbOperation();
@@ -356,23 +357,23 @@ $app->put('/updatepatient/:id', function($patientid) use ($app){
     $data = json_decode(file_get_contents("php://input"));
     $response = array();
 
-    $patientName = $data->patientname;
-    $phoneNumber = $data->phonenumber;
-    $address = $data->address;
-    $city = $data->city;
-    $state= $data->state;
-    $zipCode = $data->zipcode;
-    $insuranceCarrierId = $data->insurancecarrierid;
-    $dateOfBirth = $data->dateofbirth;
-    $gender = $data->gender;
-    $physician = $data->physician;
+    $patientName = $data->PatientName;
+    $phoneNumber = $data->PhoneNumber;
+    $address = $data->Address;
+    $city = $data->City;
+    $state = $data->State;
+    $zipCode = $data->ZipCode;
+    $insuranceCarrierId = $data->InsuranceCarrierId;
+    $dateOfBirth = $data->DateOfBirth;
+    $gender = $data->Gender;
+    $physician = $data->Physician;
 
     $db = new DbOperation();
     $result = $db->updateElectronicPatient($patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician, $patientid);
 
     if ($result){
         $response['error'] = false;
-        $response['message'] = "Assignment submitted successfully";
+        $response['message'] = "Patient edited successfully";
     } else {
         $response['error'] = true;
         $response['message'] = "Could not submit assignment";
@@ -476,20 +477,21 @@ $app->post('/addencounter', function () use ($app) {
     $data = json_decode(file_get_contents("php://input"));
     $response = array();
 
-    $encounterDate = $data->encounterdate;
-    $complaint = $data->complaint;
-    $vitalSigns = $data->vitalsigns;
-    $notes = $data->notes;
-    $pharmacyOrder = $data->pharmacyorder;
-    $diagnosis = $data->diagnosis;
-    $treatmentPlan = $data->treatmentplan;
-    $referral = $data->referral;
-    $followupNotes = $data->followupnotes;
-    $patientId = $data->patientid;
+    $encounterDate = $data->EncounterDate;
+    $complaint = $data->Complaint;
+    $labOrderId = $data->LabOrderId;
+    $vitalSigns = $data->VitalSigns;
+    $notes = $data->Notes;
+    $pharmacyOrder = $data->PharmacyOrder;
+    $diagnosis = $data->Diagnosis;
+    $treatmentPlan = $data->TreatmentPlan;
+    $referral = $data->Referral;
+    $followupNotes = $data->FollowUpNotes;
+    $patientId = $data->PatientId;
 
 
     $pdb = new DbOperation();
-    $res = $pdb->addMedicalEncounter($encounterDate, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis, $treatmentPlan, $referral, $followupNotes, $patientId);
+    $res = $pdb->addMedicalEncounter($encounterDate, $labOrderId, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis, $treatmentPlan, $referral, $followupNotes, $patientId);
 
     if ($res == 0) {
         $response["error"] = true;
@@ -513,16 +515,16 @@ $app->put('/updateencounter/:id', function($medicalencounterid) use ($app){
     $data = json_decode(file_get_contents("php://input"));
     $response = array();
 
-    $encounterDate = $data->encounterdate;
-    $complaint = $data->complaint;
-    $vitalSigns = $data->vitalsigns;
-    $notes = $data->notes;
-    $pharmacyOrder = $data->pharmacyorder;
-    $diagnosis = $data->diagnosis;
-    $treatmentPlan = $data->treatmentplan;
-    $referral = $data->referral;
-    $followupNotes = $data->followupnotes;
-    $patientId = $data->patientid;
+    $encounterDate = $data->EncounterDate;
+    $complaint = $data->Complaint;
+    $vitalSigns = $data->VitalSigns;
+    $notes = $data->Notes;
+    $pharmacyOrder = $data->PharmacyOrder;
+    $diagnosis = $data->Diagnosis;
+    $treatmentPlan = $data->TreatmentPlan;
+    $referral = $data->Referral;
+    $followupNotes = $data->FollowUpNotes;
+    $patientId = $data->PatientId;
 
     $db = new DbOperation();
     $result = $db->updateMedicalEncounter($encounterDate, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis, $treatmentPlan, $referral, $followupNotes, $patientId, $medicalencounterid);
