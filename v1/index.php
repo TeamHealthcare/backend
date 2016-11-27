@@ -274,6 +274,7 @@ $app->get('/patient/:id', function($patient_id) use ($app){
     echoResponse(200,$response);
 });
 
+
 /* *
  * NOTE:  This adds a user to the database via POST whose Content-Type:  application/json.
  *        This does *NOT* use directly take advantage of the SLIM framework
@@ -289,16 +290,16 @@ $app->post('/addepatient', function () use ($app) {
     $data = json_decode(file_get_contents("php://input"));
     $response = array();
 
-    $patientName = $data->patientname;
-    $phoneNumber = $data->phonenumber;
-    $address = $data->address;
-    $city = $data->city;
-    $state= $data->state;
-    $zipCode = $data->zipcode;
-    $insuranceCarrierId = $data->insurancecarrierid;
-    $dateOfBirth = $data->dateofbirth;
-    $gender = $data->gender;
-    $physician = $data->physician;
+    $patientName = $data->PatientName;
+    $phoneNumber = $data->PhoneNumber;
+    $address = $data->Address;
+    $city = $data->City;
+    $state= $data->State;
+    $zipCode = $data->ZipCode;
+    $insuranceCarrierId = $data->InsuranceCarrierId;
+    $dateOfBirth = $data->DateOfBirth;
+    $gender = $data->Gender;
+    $physician = $data->Physician;
 
 
     $pdb = new DbOperation();
@@ -326,16 +327,16 @@ $app->put('/updatepatient/:id', function($patientid) use ($app){
     $data = json_decode(file_get_contents("php://input"));
     $response = array();
 
-    $patientName = $data->patientname;
-    $phoneNumber = $data->phonenumber;
-    $address = $data->address;
-    $city = $data->city;
-    $state= $data->state;
-    $zipCode = $data->zipcode;
-    $insuranceCarrierId = $data->insurancecarrierid;
-    $dateOfBirth = $data->dateofbirth;
-    $gender = $data->gender;
-    $physician = $data->physician;
+    $patientName = $app->request->post('PatientName');
+    $phoneNumber = $app->request->post('PhoneNumber');
+    $address = $app->request->post('Address');
+    $city = $app->request->post('City');
+    $state = $app->request->post('State');
+    $zipCode = $app->request->post('Zipcode');
+    $insuranceCarrierId = $app->request->post('InsuranceCarrierId');
+    $dateOfBirth = $app->request->post('DateOfBirth');
+    $gender = $app->request->post('Gender');
+    $physician = $app->request->post('Physician');
 
     $db = new DbOperation();
     $result = $db->updateElectronicPatient($patientName, $phoneNumber, $address, $city, $state, $zipCode, $insuranceCarrierId, $dateOfBirth, $gender, $physician, $patientid);
