@@ -162,7 +162,7 @@ class DbOperation
     public function getMedicalEncounters() {
 
         $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
-        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId FROM medicalencounter;";
+        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId LabOrderId FROM medicalencounter;";
 
         return $this->executeQueryToReturnData($query,[]);
     }
