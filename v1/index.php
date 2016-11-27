@@ -53,6 +53,36 @@ $app->post('/adduser', function () use ($app) {
 
 });
 
+/* *
+ * NOTE:  This adds a user to the database via POST whose Content-Type:  application/json.
+ *        This does *NOT* use directly take advantage of the SLIM framework
+ *
+ * URL: http://localhost/Services/v1/validate
+ * Parameters: $_POST[] parameters
+ * Method: POST
+ * */
+$app->post('/validate', function () use ($app) {
+
+    $data = json_decode(file_get_contents("php://input"));
+    $response = array();
+
+    $username = $data->username;
+    $password = $data->password;
+
+    $pdb = new DbOperation();
+    $res = $pdb->validateUser($username, $password);
+
+    if ($res == 0) {
+        $response["error"] = true;
+        $response["message"] = "This is not a valid user";
+        echoResponse(400, $response);
+    }
+
+    $response["error"] = false;
+    $response["message"] = "Valid User";
+    return echoResponse(201, $response);
+});
+
 /*
  * URL: http://localhost/Services/v1/carriers
  * Parameters: none
@@ -505,6 +535,62 @@ $app->put('/updateencounter/:id', function($medicalencounterid) use ($app){
         $response['message'] = "Could not submit assignment";
     }
     echoResponse(200,$response);
+});
+
+/*
+ * URL: http://localhost/Services/v1/laborders
+ * Parameters: none
+ * Authorization: Put API Key in Request Header
+ * Method: GET
+ * */
+$app->get('/laborders', function() use ($app) {
+    $response = initializeResponseObject();
+    $db = new DbOperation();
+    $response['payload'] = $db->getLabOrders();
+    echoResponse(200, $response);
+});
+
+/* *
+ * URL: http://localhost/Services/v1/laborder/<medicalencounter_id>
+ * Parameters: none
+ * Authorization: Put API Key in Request Header
+ * Method: GET
+ * */
+$app->get('/laborder/:id', function($medicalencounterid) use ($app){
+
+    $response = initializeResponseObject();
+    $db = new DbOperation();
+    $response['payload'] = $db->getLabOrderById($medicalencounterid);
+    echoResponse(200,$response);
+});
+
+/* *
+ * URL: http://localhost/Services/v1/addlaborder
+ * Parameters: none
+ * Authorization: Put API Key in Request Header
+ * Method: GET
+ * */
+$app->post('/addlaborder', function() use ($app){
+
+    // TODO:  Continue integrating, but not have to rely on hard-coded constants for form names
+    $data = json_decode(file_get_contents("php://input"));
+    $response = array();
+
+    $medicalEncounterId = $data->medicalencounterid;
+    $labOrderId = $data->laborderid;
+
+    $pdb = new DbOperation();
+    $res = $pdb->addLabOrder($medicalEncounterId, $labOrderId);
+
+    if ($res == 0) {
+        $response["error"] = true;
+        $response["message"] = "An error occurred while adding a new user";
+        echoResponse(400, $response);
+    }
+
+    $response["error"] = false;
+    $response["message"] = "Lab Order successfully added - WORKING";
+    return echoResponse(201, $response);
 });
 
 /*

@@ -39,6 +39,11 @@ class DbOperation
         return $affected > 0 ;
     }
 
+    public function validateUser($username, $password) {
+        $query = "SELECT COUNT(*) AS Matched FROM user WHERE Username = ? AND Password = SHA2(?, 256)";
+        return $this->executeQueryToReturnData($query, func_get_args());
+    }
+
     // START CARRIER
     public function getAllCarriers() {
         $query = "SELECT InsuranceCarrierId, Carrier FROM insurancecarrier WHERE Active = 1";
@@ -217,6 +222,29 @@ class DbOperation
         return $affected > 0 ;
     }
     // END TO RETROFIT MEDICAL ENCOUNTER TO WORK LIKE CARRIER
+
+    // LABORDER
+    public function getLabOrders() {
+
+        $query  = "SELECT MedicalEncounterId, LabOrderId, Physician, LabTest, NormalRangeStart, NormalRangeEnd";
+	    $query .= ", LabTestDate, LabTechnician, LabTestResults FROM vw_laborders";
+
+        return $this->executeQueryToReturnData($query, []);
+    }
+
+    public function getLabOrderById($medicalencounterid) {
+
+        $query  = "SELECT MedicalEncounterId, LabOrderId, Physician, LabTest, NormalRangeStart, NormalRangeEnd";
+        $query .= ", LabTestDate, LabTechnician, LabTestResults FROM vw_laborders WHERE MedicalEncounterId = ?";
+
+        return $this->executeQueryToReturnData($query, func_get_args());
+    }
+
+    public function addLabOrder($medicalEncounterId, $labOrderId) {
+        $query = "INSERT INTO medicalencounterlaborders (MedicalEncounterId, LabOrderId) VALUES (?, ?)";
+        return $this->executeAddUpdateQuery($query, func_get_args());
+    }
+    // END LABORDER
 
     // TODO:  Remove everything below and use PDO
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
