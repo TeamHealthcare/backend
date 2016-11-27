@@ -447,16 +447,16 @@ $app->post('/addencounter', function () use ($app) {
     $data = json_decode(file_get_contents("php://input"));
     $response = array();
 
-    $encounterDate = $data->encounterdate;
-    $complaint = $data->complaint;
-    $vitalSigns = $data->vitalsigns;
-    $notes = $data->notes;
-    $pharmacyOrder = $data->pharmacyorder;
-    $diagnosis = $data->diagnosis;
-    $treatmentPlan = $data->treatmentplan;
-    $referral = $data->referral;
-    $followupNotes = $data->followupnotes;
-    $patientId = $data->patientid;
+    $encounterDate = $data->EncounterDate;
+    $complaint = $data->Complaint;
+    $vitalSigns = $data->VitalSigns;
+    $notes = $data->Notes;
+    $pharmacyOrder = $data->PharmacyOrder;
+    $diagnosis = $data->Diagnosis;
+    $treatmentPlan = $data->TreatmentPlan;
+    $referral = $data->Referral;
+    $followupNotes = $data->FollowUpNotes;
+    $patientId = $data->PatientId;
 
 
     $pdb = new DbOperation();
