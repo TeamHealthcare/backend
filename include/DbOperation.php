@@ -16,7 +16,7 @@ class DbOperation
     // TODO:  Add exception handling to this in case query barfs...
     public function executeQueryToReturnData($query, $array) {
         $statement = $this->pdo->prepare($query);
-        if (!isset($array) || count($array) == 0)
+        if (count($array) == 0)
             $statement->execute();
         else
             $statement->execute($array);
