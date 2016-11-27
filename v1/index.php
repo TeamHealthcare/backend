@@ -343,7 +343,7 @@ $app->put('/updatepatient/:id', function($patientid) use ($app){
 
     if ($result){
         $response['error'] = false;
-        $response['message'] = "Assignment submitted successfully";
+        $response['message'] = "Patient edited successfully";
     } else {
         $response['error'] = true;
         $response['message'] = "Could not submit assignment";
