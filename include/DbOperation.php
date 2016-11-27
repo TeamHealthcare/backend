@@ -162,7 +162,7 @@ class DbOperation
     public function getMedicalEncounters() {
 
         $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
-        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId LabOrderId FROM medicalencounter;";
+        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId, LabOrderId FROM medicalencounter;";
 
         return $this->executeQueryToReturnData($query,[]);
     }
@@ -170,7 +170,7 @@ class DbOperation
     public function getMedicalEncounterById($medicalencounterid) {
 
         $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
-        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId FROM medicalencounter WHERE MedicalEncounterId = ?";
+        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId, LabOrderId FROM medicalencounter WHERE MedicalEncounterId = ?";
 
         $statement = $this->pdo->prepare($query);
         $statement->execute(func_get_args());
