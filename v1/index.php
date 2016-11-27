@@ -449,6 +449,7 @@ $app->post('/addencounter', function () use ($app) {
 
     $encounterDate = $data->EncounterDate;
     $complaint = $data->Complaint;
+    $labOrderId = $data->LabOrderId;
     $vitalSigns = $data->VitalSigns;
     $notes = $data->Notes;
     $pharmacyOrder = $data->PharmacyOrder;
@@ -460,7 +461,7 @@ $app->post('/addencounter', function () use ($app) {
 
 
     $pdb = new DbOperation();
-    $res = $pdb->addMedicalEncounter($encounterDate, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis, $treatmentPlan, $referral, $followupNotes, $patientId);
+    $res = $pdb->addMedicalEncounter($encounterDate, $labOrderId, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis, $treatmentPlan, $referral, $followupNotes, $patientId);
 
     if ($res == 0) {
         $response["error"] = true;

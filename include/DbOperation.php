@@ -16,7 +16,7 @@ class DbOperation
     // TODO:  Add exception handling to this in case query barfs...
     public function executeQueryToReturnData($query, $array) {
         $statement = $this->pdo->prepare($query);
-        if (count($array) == 0)
+        if (!isset($array) || count($array) == 0)
             $statement->execute();
         else
             $statement->execute($array);
@@ -164,7 +164,7 @@ class DbOperation
         $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
         $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId FROM medicalencounter;";
 
-        return $this->executeQueryToReturnData($query);
+        return $this->executeQueryToReturnData($query,[]);
     }
 
     public function getMedicalEncounterById($medicalencounterid) {
@@ -179,12 +179,12 @@ class DbOperation
         return $row;
     }
 
-    public function addMedicalEncounter($encounterDate, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis,
+    public function addMedicalEncounter($encounterDate, $labOrderId, $complaint, $vitalSigns, $notes, $pharmacyOrder, $diagnosis,
                                         $treatmentPlan, $referral, $followupNotes, $patientId) {
 
         $query = "INSERT INTO medicalencounter ";
-        $query .= "(EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, diagnosis, TreatmentPlan, Referral, FollowUpNotes, PatientId) VALUES ";
-        $query .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $query .= "(EncounterDate, LabOrderId, Complaint, VitalSigns, Notes, PharmacyOrder, diagnosis, TreatmentPlan, Referral, FollowUpNotes, PatientId) VALUES ";
+        $query .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 
         $statement = $this->pdo->prepare($query);
