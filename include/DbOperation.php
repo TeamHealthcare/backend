@@ -47,7 +47,7 @@ class DbOperation
     // START CARRIER
     public function getAllCarriers() {
         $query = "SELECT InsuranceCarrierId, Carrier FROM insurancecarrier WHERE Active = 1";
-        return $this->executeQueryToReturnData($query, []);
+        return $this->executeQueryToReturnData($query, func_get_args());
     }
 
     public function getCarrierById($insuranceCarrierId) {
@@ -70,7 +70,7 @@ class DbOperation
     // START SERVICE
     public function getAllServices() {
         $query = "SELECT ServiceId, InsuranceCarrierId, Description, Cost FROM service";
-        return $this->executeQueryToReturnData($query, []);
+        return $this->executeQueryToReturnData($query, func_get_args());
     }
 
     public function getAllServicesByCarrier($insuranceCarrierId) {
@@ -167,15 +167,15 @@ class DbOperation
     public function getMedicalEncounters() {
 
         $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
-        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId, LabOrderId FROM medicalencounter;";
+        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId FROM medicalencounter;";
 
-        return $this->executeQueryToReturnData($query,[]);
+        return $this->executeQueryToReturnData($query,func_get_args());
     }
 
     public function getMedicalEncounterById($medicalencounterid) {
 
         $query = "SELECT MedicalEncounterId, EncounterDate, Complaint, VitalSigns, Notes, PharmacyOrder, Diagnosis ";
-        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId, LabOrderId FROM medicalencounter WHERE MedicalEncounterId = ?";
+        $query .= ", TreatmentPlan, Referral, FollowUpNotes, PatientId FROM medicalencounter WHERE MedicalEncounterId = ?";
 
         $statement = $this->pdo->prepare($query);
         $statement->execute(func_get_args());
